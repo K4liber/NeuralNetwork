@@ -84,14 +84,14 @@ int main()
   //Funckja rysujaca
   for(int ii=0;ii<StreamSize;ii++){
     for(int jj=0;jj<StreamSize;jj++){
-      if(abs(data[ii] - data[jj]) > 0.05){
+      if(abs(data[ii] - data[jj]) > 0.2){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
-        connections1[ii][jj] = 1;
-        connections2[ii][jj] = 1;
+        connections1[ii][jj] = 0;
+        connections2[ii][jj] = 0;
 	}
       else{
-	connections1[ii][jj] = 0;
-        connections2[ii][jj] = 0;
+	connections1[ii][jj] = 1;
+        connections2[ii][jj] = 1;
       }
     }
   }
@@ -150,12 +150,10 @@ int main()
     index++;
   }
   
-  cout<<"Unikalne długości: "<<endl;
-  int ll=0;
-  cout<<unicalLenghts[0]<<endl;
-  while(unicalLenghts[ll] != 0){
-    cout<<unicalLenghts[ll]<<endl;
-    ll++;
+  cout<<"Dlugosci linii: "<<endl;
+  for(int ii=0;ii<1000;ii++){
+    if(sizesOfLines[ii] != 0)
+      cout<<sizesOfLines[ii]<<endl;
   }
   return( 0 );
   
