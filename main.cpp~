@@ -46,7 +46,10 @@ int main()
   int connections2 [StreamSize][StreamSize];
   int nlines1=0;
   int nlines2=0;
-  
+  int sizesOfLines[5000];
+  for(int ii=0;ii<5000;ii++){
+    sizesOfLines[ii] = 0;
+  }
   fstream plik;
   plik.open( "dane1.txt", ios::in | ios::out );
   
@@ -83,11 +86,13 @@ int main()
     for(int jj=0;jj<StreamSize;jj++){
       if(abs(data[ii] - data[jj]) > 0.05){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
-        connections1[ii][jj]+=1;
-        connections2[ii][jj]+=1;
+        connections1[ii][jj] = 1;
+        connections2[ii][jj] = 1;
 	}
-	
-        
+      else{
+	connections1[ii][jj] = 0;
+        connections2[ii][jj] = 0;
+      }
     }
   }
  
@@ -97,25 +102,61 @@ int main()
   
   allegro_exit();
   int k,h;
-   for(int ii=0;ii<StreamSize-1;ii++){
+  for(int ii=0;ii<StreamSize-1;ii++){
     for(int jj=0;jj<StreamSize-1;jj++){
-       k=0;
-       h=0;
-       while(connections1[ii+k][jj+k]==1){
-        connections1[ii+k][jj+k]=0;
-        k++;
+      k=0;
+      h=0;
+      
+      while(connections1[ii+k][jj+k]==1){
+	connections1[ii+k][jj+k]=0;
+	k++;
       }
-      if(k>1) {nlines1++;}
-       while(connections2[StreamSize-h-ii][jj+h]==1){
-       connections2[StreamSize-h-ii][jj+h]=0;
-       h++;
+      
+      if(k>1){
+	sizesOfLines[nlines1] = k;
+	nlines1++;
       }
-      if(h>1) {nlines2++;}
+      while(connections2[StreamSize-h-ii][jj+h]==1){
+	connections2[StreamSize-h-ii][jj+h]=0;
+	h++;
+      }
+      
+      if(h>1) 
+	nlines2++;
     
-     }
     }
+  }
   
+  //Sprawdzamy czy to działa
+  int unicalLenghts[1000];
+  for(int ii=0;ii<1000;ii++){
+    unicalLenghts[ii] = 0;
+  }
+  int indexOfUnical = 0;
   cout<<"liczba prostych wynosi: "<<nlines1<<" i "<<nlines2<<"\n";
+  int index = 0;
+  while(sizesOfLines[index] != 0){
+    bool isUnical = true;
+    for(int ii=0;ii<1000;ii++){
+      if(sizesOfLines[index] == sizesOfLines[ii] && index != ii){
+	isUnical = false;
+	break;
+      }
+    }
+    if(isUnical){
+      unicalLenghts[indexOfUnical] = sizesOfLines[index];
+      indexOfUnical++;
+    }
+    index++;
+  }
+  
+  cout<<"Unikalne długości: "<<endl;
+  int ll=0;
+  cout<<unicalLenghts[0]<<endl;
+  while(unicalLenghts[ll] != 0){
+    cout<<unicalLenghts[ll]<<endl;
+    ll++;
+  }
   return( 0 );
   
 }
