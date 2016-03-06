@@ -75,7 +75,7 @@ int main()
   //Funckja rysujaca
   for(int ii=0;ii<500;ii++){
     for(int jj=0;jj<500;jj++){
-      if(abs(data[ii] - data[jj]) > 0.05)
+      if(data[ii] - data[jj] > 0.05)
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
     }
   }
