@@ -4,16 +4,17 @@
 #include <cstdlib>
 #include <allegro.h> 
 
+
 using namespace std;
 
 
 void generateData(){
-    fstream plik( "dane.txt", ios::out );
+    fstream plik( "dane1.txt", ios::out );
     if( plik.good() )
     {
         for( int i = 0; i < 500; i++ )
         {
-            plik << sin(M_PI*i/50)<< endl;
+            plik << i*cos(M_PI*i/50)<< endl;
             plik.flush();
         }
         plik.close();
@@ -22,7 +23,7 @@ void generateData(){
 
 int getStreamSize(){
   fstream p;
-  p.open( "dane.txt", ios::in | ios::out );
+  p.open( "dane1.txt", ios::in | ios::out );
   int count = 0;
   if( p.good() == true ){
     while(p != 0){
@@ -40,9 +41,14 @@ int main()
 
   generateData();
   double data[getStreamSize()];
+  int StreamSize=getStreamSize();
+  int connections1 [StreamSize][StreamSize];
+  int connections2 [StreamSize][StreamSize];
+  int nlines1=0;
+  int nlines2=0;
   
   fstream plik;
-  plik.open( "dane.txt", ios::in | ios::out );
+  plik.open( "dane1.txt", ios::in | ios::out );
   
   if( plik.good() == true )
   {   
@@ -73,18 +79,43 @@ int main()
   clear_to_color( obrazek1, makecol( 0, 0, 0 ) );
   
   //Funckja rysujaca
-  for(int ii=0;ii<500;ii++){
-    for(int jj=0;jj<500;jj++){
-      if(abs(data[ii] - data[jj]) > 0.05)
+  for(int ii=0;ii<StreamSize;ii++){
+    for(int jj=0;jj<StreamSize;jj++){
+      if(abs(data[ii] - data[jj]) > 0.05){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
+        connections1[ii][jj]+=1;
+        connections2[ii][jj]+=1;
+	}
+	
+        
     }
   }
+ 
   blit( obrazek1, screen, 0, 0, 0, 0, obrazek1->w, obrazek1->h );
   readkey();
   destroy_bitmap( obrazek1 );
   
   allegro_exit();
+  int k,h;
+   for(int ii=0;ii<StreamSize-1;ii++){
+    for(int jj=0;jj<StreamSize-1;jj++){
+       k=0;
+       h=0;
+       while(connections1[ii+k][jj+k]==1){
+        connections1[ii+k][jj+k]=0;
+        k++;
+      }
+      if(k>1) {nlines1++;}
+       while(connections2[StreamSize-h-ii][jj+h]==1){
+       connections2[StreamSize-h-ii][jj+h]=0;
+       h++;
+      }
+      if(h>1) {nlines2++;}
+    
+     }
+    }
   
+  cout<<"liczba prostych wynosi: "<<nlines1<<" i "<<nlines2<<"\n";
   return( 0 );
   
 }
