@@ -5,7 +5,6 @@
 #include <allegro.h> 
 
 using namespace std;
-//blablabla
 
 
 void generateData(){
