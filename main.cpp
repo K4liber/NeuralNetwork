@@ -5,6 +5,7 @@
 #include <allegro.h> 
 
 using namespace std;
+//blablabla
 
 
 void generateData(){
@@ -70,7 +71,7 @@ int main()
       allegro_exit();
       return 0;
   }
-  clear_to_color( obrazek1, makecol( 255, 0, 0 ) );
+  clear_to_color( obrazek1, makecol( 0, 0, 0 ) );
   
   //Funckja rysujaca
   for(int ii=0;ii<500;ii++){
