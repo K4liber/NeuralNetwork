@@ -3,10 +3,21 @@
 #include <cmath>
 #include <cstdlib>
 #include <allegro.h> 
+#include <vector>
+#include <algorithm>
 
+typedef std::vector < double > DoubleData;
 
 using namespace std;
 
+double getEntropy(vector<double> histogram){
+  double entropy = 0;
+  for( int i = 0; i < histogram.size(); i++ ){
+    cout<<"SDA "<<log(histogram[i])<<endl;
+    entropy+=-histogram[i]*log(histogram[i]);
+  }
+  return entropy;
+}
 
 void generateData(){
     fstream plik( "dane1.txt", ios::out );
@@ -14,7 +25,7 @@ void generateData(){
     {
         for( int i = 0; i < 500; i++ )
         {
-            plik << i*cos(M_PI*i/50)<< endl;
+            plik << sin(M_PI*i/50)<< endl;
             plik.flush();
         }
         plik.close();
@@ -23,7 +34,7 @@ void generateData(){
 
 int getStreamSize(){
   fstream p;
-  p.open( "dane1.txt", ios::in | ios::out );
+  p.open( "dane.txt", ios::in | ios::out );
   int count = 0;
   if( p.good() == true ){
     while(p != 0){
@@ -37,9 +48,9 @@ int getStreamSize(){
 }
 
 int main()
-{ 
+{
 
-  generateData();
+  //generateData();
   double data[getStreamSize()];
   int StreamSize=getStreamSize();
   int connections1 [StreamSize][StreamSize];
@@ -47,11 +58,12 @@ int main()
   int nlines1=0;
   int nlines2=0;
   int sizesOfLines[5000];
+  vector<double> lines;
   for(int ii=0;ii<5000;ii++){
     sizesOfLines[ii] = 0;
   }
   fstream plik;
-  plik.open( "dane1.txt", ios::in | ios::out );
+  plik.open( "dane.txt", ios::in | ios::out );
   
   if( plik.good() == true )
   {   
@@ -68,10 +80,10 @@ int main()
   allegro_init();
   install_keyboard();
   set_color_depth( 16 );
-  set_gfx_mode( GFX_AUTODETECT_WINDOWED, 500, 500, 0, 0 );
+  set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
   clear_to_color( screen, makecol( 128, 128, 128 ) );
   BITMAP * obrazek1 = NULL;
-  obrazek1 = create_bitmap( 500, 500 );
+  obrazek1 = create_bitmap( 1000, 1000 );
   if( !obrazek1 )
   {
       set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
@@ -84,7 +96,7 @@ int main()
   //Funckja rysujaca
   for(int ii=0;ii<StreamSize;ii++){
     for(int jj=0;jj<StreamSize;jj++){
-      if(abs(data[ii] - data[jj]) > 0.2){
+      if(abs(data[ii] - data[jj]) > 0.01){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
         connections1[ii][jj] = 0;
         connections2[ii][jj] = 0;
@@ -105,25 +117,16 @@ int main()
   for(int ii=0;ii<StreamSize-1;ii++){
     for(int jj=0;jj<StreamSize-1;jj++){
       k=0;
-      h=0;
-      
       while(connections1[ii+k][jj+k]==1){
 	connections1[ii+k][jj+k]=0;
 	k++;
       }
       
       if(k>1){
+	lines.push_back(k);
 	sizesOfLines[nlines1] = k;
 	nlines1++;
       }
-      while(connections2[StreamSize-h-ii][jj+h]==1){
-	connections2[StreamSize-h-ii][jj+h]=0;
-	h++;
-      }
-      
-      if(h>1) 
-	nlines2++;
-    
     }
   }
   
@@ -133,7 +136,7 @@ int main()
     unicalLenghts[ii] = 0;
   }
   int indexOfUnical = 0;
-  cout<<"liczba prostych wynosi: "<<nlines1<<" i "<<nlines2<<"\n";
+  cout<<"liczba prostych wynosi: "<<nlines1<<"\n";
   int index = 0;
   while(sizesOfLines[index] != 0){
     bool isUnical = true;
@@ -150,11 +153,20 @@ int main()
     index++;
   }
   
-  cout<<"Dlugosci linii: "<<endl;
-  for(int ii=0;ii<5000;ii++){
-    if(sizesOfLines[ii] != 0)
-      cout<<sizesOfLines[ii]<<endl;
+  double maxLine = *max_element(lines.begin(), lines.end());
+  vector<double> hist(maxLine+1);
+  for( int i = 0; i < maxLine+1; i++ )
+    hist[i] = 0;
+  
+  for( int i = 0; i < lines.size(); i++){
+    int index = (int)lines[i];
+    hist[index] += (double)(1/nlines1);
   }
+  
+  cout<<"Entropia: "<<getEntropy(hist)<<endl;
+  cout<<"Max: "<<maxLine<<endl;
+  cout<<"Lines: "<<int(lines.size())<<endl;
+
   return( 0 );
   
 }
