@@ -6,8 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-
-typedef std::vector < double > DoubleData;
+#include "lib.h"
 
 using namespace std;
 
@@ -18,34 +17,6 @@ double getEntropy(vector<double> histogram){
       entropy-=histogram[i]*log(histogram[i]);
   }
   return entropy;
-}
-
-void generateData(){
-    fstream plik( "dane1.txt", ios::out );
-    if( plik.good() )
-    {
-        for( int i = 0; i < 500; i++ )
-        {
-            plik << sin(M_PI*i/50)<< endl;
-            plik.flush();
-        }
-        plik.close();
-    }
-}
-
-int getStreamSize(){
-  fstream p;
-  p.open( "dane.txt", ios::in | ios::out );
-  int count = 0;
-  if( p.good() == true ){
-    while(p != 0){
-      char dane[ 255 ];
-      p.getline( dane, 255 );
-      count++;
-    }
-    p.close();
-  }
-  return count-1;
 }
 
 int main(int argc,char *argv[])
@@ -70,14 +41,8 @@ int main(int argc,char *argv[])
   double data[getStreamSize()];
   int StreamSize=getStreamSize();
   int connections1 [StreamSize][StreamSize];
-  int connections2 [StreamSize][StreamSize];
-  int nlines1=0;
-  int nlines2=0;
-  int sizesOfLines[5000];
   vector<double> lines;
-  for(int ii=0;ii<5000;ii++){
-    sizesOfLines[ii] = 0;
-  }
+
   fstream plik;
   plik.open( const_cast<char*>(("Dane/" + fileName).c_str()), ios::in | ios::out );
   
@@ -135,36 +100,9 @@ int main(int argc,char *argv[])
 	connections1[ii+k][jj+k]=0;
 	k++;
       }
-      
-      if(k>1){
+      if(k>1)
 	lines.push_back(k);
-	sizesOfLines[nlines1] = k;
-	nlines1++;
-      }
     }
-  }
-  
-  //Sprawdzamy czy to działa
-  int unicalLenghts[1000];
-  for(int ii=0;ii<1000;ii++){
-    unicalLenghts[ii] = 0;
-  }
-  int indexOfUnical = 0;
-  cout<<"liczba prostych wynosi: "<<nlines1<<"\n";
-  int index = 0;
-  while(sizesOfLines[index] != 0){
-    bool isUnical = true;
-    for(int ii=0;ii<1000;ii++){
-      if(sizesOfLines[index] == sizesOfLines[ii] && index != ii){
-	isUnical = false;
-	break;
-      }
-    }
-    if(isUnical){
-      unicalLenghts[indexOfUnical] = sizesOfLines[index];
-      indexOfUnical++;
-    }
-    index++;
   }
   
   double maxLine = *max_element(lines.begin(), lines.end());
