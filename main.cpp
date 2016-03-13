@@ -5,6 +5,7 @@
 #include <allegro.h> 
 #include <vector>
 #include <algorithm>
+#include <string>
 
 typedef std::vector < double > DoubleData;
 
@@ -12,9 +13,9 @@ using namespace std;
 
 double getEntropy(vector<double> histogram){
   double entropy = 0;
-  for( int i = 0; i < histogram.size(); i++ ){
-    cout<<"SDA "<<log(histogram[i])<<endl;
-    entropy+=-histogram[i]*log(histogram[i]);
+  for( int i = 1; i < histogram.size(); i++ ){
+    if(histogram[i] > 0 )
+      entropy-=histogram[i]*log(histogram[i]);
   }
   return entropy;
 }
@@ -47,9 +48,24 @@ int getStreamSize(){
   return count-1;
 }
 
-int main()
+int main(int argc,char *argv[])
 {
-
+  string fileName;
+  double epsilon;
+  cout<<"Argumentów: "<<argc<<endl;
+  for(int i=0;i<argc;i++)
+    cout<<"Argument: "<<argv[i]<<endl;
+  
+  if(argv[1])
+    fileName = argv[1];
+  else
+    fileName = "dane.txt";
+  
+  if(argv[2])
+    epsilon = atof(argv[2]);
+  else
+    epsilon = 0.01;
+  
   //generateData();
   double data[getStreamSize()];
   int StreamSize=getStreamSize();
@@ -63,7 +79,7 @@ int main()
     sizesOfLines[ii] = 0;
   }
   fstream plik;
-  plik.open( "dane.txt", ios::in | ios::out );
+  plik.open( const_cast<char*>(("Dane/" + fileName).c_str()), ios::in | ios::out );
   
   if( plik.good() == true )
   {   
@@ -96,14 +112,12 @@ int main()
   //Funckja rysujaca
   for(int ii=0;ii<StreamSize;ii++){
     for(int jj=0;jj<StreamSize;jj++){
-      if(abs(data[ii] - data[jj]) > 0.01){
+      if(abs(data[ii] - data[jj]) > epsilon){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
         connections1[ii][jj] = 0;
-        connections2[ii][jj] = 0;
 	}
       else{
 	connections1[ii][jj] = 1;
-        connections2[ii][jj] = 1;
       }
     }
   }
@@ -154,16 +168,16 @@ int main()
   }
   
   double maxLine = *max_element(lines.begin(), lines.end());
-  vector<double> hist(maxLine+1);
+  vector<double> histOfPropability(maxLine+1);
   for( int i = 0; i < maxLine+1; i++ )
-    hist[i] = 0;
+    histOfPropability[i] = 0;
   
   for( int i = 0; i < lines.size(); i++){
     int index = (int)lines[i];
-    hist[index] += (double)(1/nlines1);
+    histOfPropability[index] += (double)(1/(double)lines.size());
   }
   
-  cout<<"Entropia: "<<getEntropy(hist)<<endl;
+  cout<<"Entropia: "<<getEntropy(histOfPropability)<<endl;
   cout<<"Max: "<<maxLine<<endl;
   cout<<"Lines: "<<int(lines.size())<<endl;
 
