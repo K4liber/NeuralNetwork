@@ -10,15 +10,6 @@
 
 using namespace std;
 
-double getEntropy(vector<double> histogram){
-  double entropy = 0;
-  for( int i = 1; i < histogram.size(); i++ ){
-    if(histogram[i] > 0 )
-      entropy-=histogram[i]*log(histogram[i]);
-  }
-  return entropy;
-}
-
 int main(int argc,char *argv[])
 {
   string fileName;
@@ -38,25 +29,10 @@ int main(int argc,char *argv[])
     epsilon = 0.01;
   
   //generateData();
-  double data[getStreamSize()];
-  int StreamSize=getStreamSize();
+  vector<double> dataFromFile = getData(fileName);
+  int StreamSize=getStreamSize(fileName);
   int connections1 [StreamSize][StreamSize];
   vector<double> lines;
-
-  fstream plik;
-  plik.open( const_cast<char*>(("Dane/" + fileName).c_str()), ios::in | ios::out );
-  
-  if( plik.good() == true )
-  {   
-    int ii=0;
-    while(plik != 0){
-      char dane[ 255 ];
-      plik.getline( dane, 255 );
-      data[ii] = atof(dane);
-      ii++;
-    }
-    plik.close();
-  }
   
   allegro_init();
   install_keyboard();
@@ -77,7 +53,7 @@ int main(int argc,char *argv[])
   //Funckja rysujaca
   for(int ii=0;ii<StreamSize;ii++){
     for(int jj=0;jj<StreamSize;jj++){
-      if(abs(data[ii] - data[jj]) > epsilon){
+      if(abs(dataFromFile[ii] - dataFromFile[jj]) > epsilon){
 	putpixel( obrazek1, ii, jj, makecol( 255, 255, 255 ) );
         connections1[ii][jj] = 0;
 	}
@@ -90,8 +66,8 @@ int main(int argc,char *argv[])
   blit( obrazek1, screen, 0, 0, 0, 0, obrazek1->w, obrazek1->h );
   readkey();
   destroy_bitmap( obrazek1 );
-  
   allegro_exit();
+  
   int k,h;
   for(int ii=0;ii<StreamSize-1;ii++){
     for(int jj=0;jj<StreamSize-1;jj++){
@@ -105,18 +81,9 @@ int main(int argc,char *argv[])
     }
   }
   
-  double maxLine = *max_element(lines.begin(), lines.end());
-  vector<double> histOfPropability(maxLine+1);
-  for( int i = 0; i < maxLine+1; i++ )
-    histOfPropability[i] = 0;
+  vector<double> histogram = getHistogram(lines);
   
-  for( int i = 0; i < lines.size(); i++){
-    int index = (int)lines[i];
-    histOfPropability[index] += (double)(1/(double)lines.size());
-  }
-  
-  cout<<"Entropia: "<<getEntropy(histOfPropability)<<endl;
-  cout<<"Max: "<<maxLine<<endl;
+  cout<<"Entropia: "<<getEntropy(histogram)<<endl;
   cout<<"Lines: "<<int(lines.size())<<endl;
 
   return( 0 );
