@@ -20,6 +20,8 @@ vector<double>  getHistogram(vector<double> lines);
 vector< vector<int> > getPixels(vector<double> dataFromFile, double epsilon);
 void drawRecursiveDiagram(vector<double> dataFromFile, double epsilon);
 vector<double> getLines(vector< vector<int> > pixels);
+vector<double> getLogisticMap(int mapSize, int mapStart, double x0, double r);
+void logisticMap(double epsilon);
 
 #endif
 

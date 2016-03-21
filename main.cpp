@@ -6,9 +6,6 @@ int main(int argc,char *argv[])
 {
   string fileName;
   double epsilon;
-  cout<<"Argumentów: "<<argc<<endl;
-  for(int i=0;i<argc;i++)
-    cout<<"Argument: "<<argv[i]<<endl;
   
   if(argv[1])
     fileName = argv[1];
@@ -20,17 +17,21 @@ int main(int argc,char *argv[])
   else
     epsilon = 0.01;
   
+  /*
   //generateData();
   vector<double> dataFromFile = getData(fileName);
   int StreamSize = getStreamSize(fileName);
   vector< vector<int> > pixels = getPixels(dataFromFile,epsilon);
   vector<double> lines = getLines(pixels);
-  drawRecursiveDiagram(dataFromFile, epsilon);
+  //drawRecursiveDiagram(dataFromFile, epsilon);
   vector<double> histogram = getHistogram(lines);
   
   cout<<"Entropia: "<<getEntropy(histogram)<<endl;
   cout<<"Lines: "<<int(lines.size())<<endl;
-
+  */
+  
+  logisticMap(epsilon);
+  
   return( 0 );
   
 }
