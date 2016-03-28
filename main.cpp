@@ -4,19 +4,13 @@ using namespace std;
 
 int main(int argc,char *argv[])
 {
-  string fileName;
   double epsilon;
   
   if(argv[1])
-    fileName = argv[1];
-  else
-    fileName = "dane.txt";
-  
-  if(argv[2])
-    epsilon = atof(argv[2]);
+    epsilon = atof(argv[1]);
   else
     epsilon = 0.01;
-  
+
   /*
   //generateData();
   vector<double> dataFromFile = getData(fileName);
@@ -28,10 +22,12 @@ int main(int argc,char *argv[])
   
   cout<<"Entropia: "<<getEntropy(histogram)<<endl;
   cout<<"Lines: "<<int(lines.size())<<endl;
-  */
-  
   logisticMap(epsilon);
-  
+  */
+
+  //void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon)
+  drawEntropy(100, 1000, 1, 0, 0.01, 0.0002,epsilon);
+
   return( 0 );
   
 }

@@ -22,6 +22,9 @@ void drawRecursiveDiagram(vector<double> dataFromFile, double epsilon);
 vector<double> getLines(vector< vector<int> > pixels);
 vector<double> getLogisticMap(int mapSize, int mapStart, double x0, double r);
 void logisticMap(double epsilon);
+vector<double> getNeuronDeviation (int N, double g, double time, double timeStep );
+void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon);
+
 
 #endif
 
