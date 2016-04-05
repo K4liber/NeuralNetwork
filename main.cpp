@@ -23,10 +23,14 @@ int main(int argc,char *argv[])
   cout<<"Entropia: "<<getEntropy(histogram)<<endl;
   cout<<"Lines: "<<int(lines.size())<<endl;
   logisticMap(epsilon);
-  */
 
+  vector<double> data = getNeuronDeviation(100,0.008,1000,1);
+  drawRecursiveDiagram(data, epsilon);
+  */
+ 	
   //void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon)
-  drawEntropy(100, 1000, 1, 0, 0.01, 0.0002,epsilon);
+  
+  drawEntropy(10, 1000, 1, 0, 1, 0.01,epsilon);
 
   return( 0 );
   

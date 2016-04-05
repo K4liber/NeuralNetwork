@@ -5,9 +5,9 @@ using namespace std;
 vector<double> getNeuronDeviation (int N, double g, double time, double timeStep )
 {
 	int Nneighbours=1;
-	double period=2;
-	double neuronS0=0.1;
-	double signalAmplitiude=1;
+	double period=time/8;
+	double neuronS0=1;
+	double signalAmplitiude=100;
 	vector<double> neuronsH;
 	vector<double> neuronsS;
 	vector<double> neuronDeviation;
@@ -39,7 +39,7 @@ vector<double> getNeuronDeviation (int N, double g, double time, double timeStep
 		}
 		for( int i=0; i<N; i++)
 		{
-			sum+=pow((neuronS0-neuronsS[i]),2.0);
+			sum+=pow((neuronsS[i]),2.0);
 		}
 		neuronDeviation.push_back(sum/N);
 	}
@@ -61,6 +61,7 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 	}
 	clear_to_color( diagram, makecol( 255, 255, 255 ) );
 	double previosEntropy = 0;
+	int rysuj = 0;
 	double entropy;
 	for(double g=gStart;g<=gStop;g+=gStep){
 		vector<double> data = getNeuronDeviation(N,g,time,timeStep);
@@ -68,8 +69,10 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 		vector<double> lines = getLines(pixels);
 		vector<double> histogram = getHistogram(lines);
 		entropy = getEntropy(histogram);
-		line(diagram, g/gStop*1000, 600-previosEntropy*80, (g+gStep)/gStop*1000, 600-entropy*80, makecol( 0, 0, 0 ) );
+		if(rysuj)
+			line(diagram, 100+g/gStop*800, 600-previosEntropy*80, 100+(g+gStep)/gStop*800, 600-entropy*80, makecol( 0, 0, 0 ) );
 		previosEntropy = entropy;
+		rysuj = 1;
 	}
 	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
 	readkey();

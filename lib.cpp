@@ -102,11 +102,17 @@ void drawRecursiveDiagram(vector<double> dataFromFile, double epsilon){
       allegro_message( "Picture cannot be loaded!" );
       allegro_exit();
   }
-  clear_to_color( diagram, makecol( 0, 0, 0 ) );
+  clear_to_color( diagram, makecol( 255, 255, 255 ) );
   for(int ii=0;ii<dataFromFile.size();ii++){
     for(int jj=0;jj<dataFromFile.size();jj++){
-      if(abs(dataFromFile[ii] - dataFromFile[jj]) > epsilon)
-	putpixel( diagram, ii, jj, makecol( 255, 255, 255 ) );
+        if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon)
+		putpixel( diagram, ii, jj, makecol( 200, 0, 0 ) );
+	if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon/2)
+		putpixel( diagram, ii, jj, makecol( 0, 155, 0 ) );
+	if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon/4)
+		putpixel( diagram, ii, jj, makecol( 0, 0, 100 ) );
+	if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon/8)
+			putpixel( diagram, ii, jj, makecol( 0, 0, 50 ) );
     }
   }
   blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
