@@ -46,6 +46,7 @@ vector<double> getNeuronDeviation (int N, double g, double time, double timeStep
 return neuronDeviation;
 }
 
+
 void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon){
 	allegro_init();
 	install_keyboard();

@@ -4,9 +4,9 @@ using namespace std;
 
 double getEntropy(vector<double> histogram){
   double entropy = 0;
-  for( int i = 2; i < histogram.size(); i++ ){
+  for( int i = 1; i < histogram.size(); i++ ){
     if(histogram[i] > 0 )
-      entropy-=histogram[i]*log(histogram[i]);
+      entropy+=histogram[i]*log(histogram[i]);
   }
   return entropy;
 }
@@ -14,7 +14,7 @@ double getEntropy(vector<double> histogram){
 void generateData(){
   fstream plik( "dane1.txt", ios::out );
   if( plik.good() ){
-    for( int i = 0; i < 500; i++ ){
+    for( int i = 0; i < 1000; i++ ){
       plik << sin(M_PI*i/50)<< endl;
       plik.flush();
     }
@@ -41,8 +41,7 @@ vector<double> getData(string fileName){
   vector<double> data;
   fstream file;
   file.open( const_cast<char*>(("Dane/" + fileName).c_str()), ios::in | ios::out );
-  if( file.good() == true )
-  {   
+  if( file.good() == true ){   
     while(file != 0){
       char line[ 255 ];
       file.getline( line, 255 );
@@ -103,18 +102,21 @@ void drawRecursiveDiagram(vector<double> dataFromFile, double epsilon){
       allegro_message( "Picture cannot be loaded!" );
       allegro_exit();
   }
-  clear_to_color( diagram, makecol( 0, 0, 0 ) );
+  clear_to_color( diagram, makecol( 255, 255, 255 ) );
   for(int ii=0;ii<dataFromFile.size();ii++){
     for(int jj=0;jj<dataFromFile.size();jj++){
-      if(abs(dataFromFile[ii] - dataFromFile[jj]) > epsilon)
-	putpixel( diagram, ii, jj, makecol( 255, 255, 255 ) );
+        if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon)
+		putpixel( diagram, ii, jj, makecol( 200, 0, 0 ) );
     }
   }
+
+
   blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
   readkey();
   destroy_bitmap( diagram );
   allegro_exit();
 }
+
 
 vector<double> getLines(vector< vector<int> > pixels){
   vector<double> lines;
@@ -144,6 +146,74 @@ vector<double> getLogisticMap(int mapSize, int mapStart, double x0, double r){
   return logisticMap;
 }
 
+void drawReturnsMap (double param, int T)
+{
+	vector<double> logMap=getLogisticMap(1000,1000,0.1,param);
+	vector<double> logMappT=getLogisticMap(1000,(1000+T),0.1,param);
+	
+	allegro_init();
+  	install_keyboard();
+  	set_color_depth( 16 );
+  	set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
+  	clear_to_color( screen, makecol( 255, 255, 255 ) );
+  	BITMAP * diagram = NULL;
+	diagram = create_bitmap( 1000, 1000 );
+	if( !diagram ){
+	set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
+	allegro_message( "Picture cannot be loaded!" );
+	allegro_exit();
+	}
+	clear_to_color( diagram, makecol( 255, 255, 255 ) );
+
+	for( int i=0;i<logMap.size();i++ ){
+	for( int j=-5;j<6;j++ ){
+
+	putpixel( diagram, logMap[i]*1000+j, logMappT[i]*1000, makecol( 0, 0, 0 ) );
+	putpixel( diagram, logMap[i]*1000, logMappT[i]*1000+j, makecol( 0, 0, 0 ) );
+	cout<<logMap[i]<<endl;
+	}
+	}
+	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
+	readkey();
+	destroy_bitmap( diagram );
+	allegro_exit();
+
+}
+
+
+void drawXnXnp1 (double param)
+{
+	vector<double> logMap=getLogisticMap(1000,1000,0.1,param);
+	
+	allegro_init();
+  	install_keyboard();
+  	set_color_depth( 16 );
+  	set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
+  	clear_to_color( screen, makecol( 255, 255, 255 ) );
+  	BITMAP * diagram = NULL;
+	diagram = create_bitmap( 1000, 1000 );
+	if( !diagram ){
+	set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
+	allegro_message( "Picture cannot be loaded!" );
+	allegro_exit();
+	}
+	clear_to_color( diagram, makecol( 255, 255, 255 ) );
+
+	for( int i=0;i<(logMap.size()-1);i++ ){
+	for( int j=-5;j<6;j++ ){
+
+	putpixel( diagram,logMap[i]*1000,logMap[i+1]*1000, makecol( 0, 0, 0 ) );
+	cout<<logMap[i]<<endl;
+	}
+	}
+	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
+	readkey();
+	destroy_bitmap( diagram );
+	allegro_exit();
+
+}
+
+
 void logisticMap(double epsilon){
   vector<double> logisticMap1;
   double logisticEpsilon = epsilon;
@@ -161,15 +231,15 @@ void logisticMap(double epsilon){
   }
   clear_to_color( diagram, makecol( 255, 255, 255 ) );
   double previosEntropy = 0;
-  for( double i=0;i<99;i++ ){
-    logisticMap1=getLogisticMap(1000,1,0.1,3.5+(double)i/200);
+  for( double i=0;i<999;i++ ){
+    logisticMap1=getLogisticMap(1000,1000,0.1,3.5+(double)i/2000);
     vector< vector<int> > logisticMap1Pixels = getPixels(logisticMap1,logisticEpsilon);
     vector<double> logisticMap1Lines = getLines(logisticMap1Pixels);
     //drawRecursiveDiagram(logisticMap1, logisticEpsilon);
     vector<double> logisticMap1Histogram = getHistogram(logisticMap1Lines);
     double logisticMapEntropy = getEntropy(logisticMap1Histogram);
     //putpixel( diagram, i*10, 800-logisticMapEntropy*100, makecol( 0, 0, 0 ) );	
-    line(diagram, i*10, 600-previosEntropy*80, (i+1)*10, 600-logisticMapEntropy*80, makecol( 0, 0, 0 ) );
+    line(diagram, i, 100-previosEntropy*80, (i+1), 100-logisticMapEntropy*80, makecol( 0, 0, 0 ) );
     previosEntropy = getEntropy(logisticMap1Histogram);
   }
   blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
