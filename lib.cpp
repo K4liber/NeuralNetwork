@@ -6,7 +6,7 @@ double getEntropy(vector<double> histogram){
   double entropy = 0;
   for( int i = 1; i < histogram.size(); i++ ){
     if(histogram[i] > 0 )
-      entropy+=histogram[i]*log(histogram[i]);
+      entropy-=histogram[i]*log(histogram[i]);
   }
   return entropy;
 }
