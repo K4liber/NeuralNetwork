@@ -27,11 +27,11 @@ int main(int argc,char *argv[])
   
   drawRecursiveDiagram(dataFromFile, epsilon);
   
- 	
+ //vector <double> getNeuronDeviation(int N, double g, double time, double timeStep )
   //void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon)
   */
-  //drawEntropy(100, 100, 1, 0.05, 5, 0.05,epsilon);
-  vector<double> data = getNeuronDeviation(10,2,10,1);
+  drawEntropy(100, 1000, 1, 0.05, 5, 0.02,epsilon);
+  //vector<double> data = getNeuronDeviation(10,1,200,1);
   return( 0 );
   
 }
