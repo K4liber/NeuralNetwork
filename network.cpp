@@ -6,7 +6,6 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 	int neigh = 3;
 	double deviation = 0;
 	vector <double> neuronDeviation;
-	int timeStart = 200;
 
 	vector <double> S0;
 	S0.resize(N);
@@ -31,13 +30,15 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 		}	
 	}
 
-	for(int t=0;t<time+timeStart;t++){
+	for(int t=0;t<time;t++){
 
 		for(int j=0; j<N; j++){
 			for(int z=(j-neigh);z<=(j+neigh);z+=1){
-				if(z>0 && z<N)
+				if(z>0 && z<N){
 					H[j]+=(double)J[j][z]*(double)S[z];
+				}
 			}
+			//cout<<"t: "<<t<<"  J: "<<j<<"  H[j][t]: "<<H[j]<<endl;
 		}
 
 		
@@ -52,7 +53,7 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 			deviation+=pow((S0[i] - S[i]),2.0);
 
 		neuronDeviation.push_back((double)deviation/(double)N);
-		
+		//cout<<"t: "<<t<<" deviation: "<<(double)deviation/(double)N<<endl;
 
 		for(int i=0; i<N; i++)
 			H[i] = (double)0;
@@ -141,8 +142,8 @@ vector<double> getNeuronDeviation2 (int N, double g, double time, double timeSte
 
 
 void drawEntropy(int N, double time, double timeStep, double gStart, double gStop, double gStep, double epsilon){
-	fstream plik( "networkData.txt", ios::out );
-	
+	fstream xAxis( "networkDataX.txt", ios::out );
+	fstream yAxis( "networkDataY.txt", ios::out );
 
 	
 	allegro_init();
@@ -167,9 +168,13 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 		vector<double> lines = getLines(pixels);
 		vector<double> histogram = getHistogram(lines);
 		entropy = getEntropy(histogram);
-		if( plik.good() ){
-			plik <<entropy<< endl;
-			plik.flush();
+		if( xAxis.good() ){
+			xAxis <<g<< endl;
+			xAxis.flush();
+		}
+		if( yAxis.good() ){
+			yAxis <<entropy<< endl;
+			yAxis.flush();
 		}
 		if(rysuj)
 			line(diagram, 100+g/gStop*800, -previosEntropy*80+800, 100+(g+gStep)/gStop*800, -entropy*80+800, makecol( 0, 0, 0 ) );
@@ -181,5 +186,6 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 	readkey();
 	destroy_bitmap( diagram );
 	allegro_exit();
-	plik.close();
+	xAxis.close();
+	yAxis.close();
 }
