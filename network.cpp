@@ -2,10 +2,14 @@
 
 using namespace std;
 
-vector <double> getNeuronDeviation(int N, double g, double time, double timeStep ){
+vector <double> getNeuronDeviation(int N, double g, double time, double timeStart,int period, double timeStep ){
+	
+	fstream variationX( "variationX.txt", ios::out );
+	fstream variationY( "variationY.txt", ios::out );
 	int neigh = 3;
 	double deviation = 0;
 	vector <double> neuronDeviation;
+	double signalAmplitude = 0;
 
 	vector <double> S0;
 	S0.resize(N);
@@ -26,7 +30,7 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 		J[i].resize(N);
 		for(int l=0;l<i;l++){
 			J[i][l] = ( 2.*rand()/RAND_MAX ) -1;
-			J[l][i] = J[i][l];
+			J[l][i] = ( 2.*rand()/RAND_MAX ) -1;//J[i][l];
 		}	
 	}
 
@@ -43,7 +47,7 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 
 		
 		for( int j=0; j<N; j++)
-			S[j]=(double)tanh((double)g*(double)H[j]);//+(double)signalAmplitiude*(double)sin(t/period*2*M_PI));
+			S[j]=(double)tanh((double)g*(double)H[j]+(double)signalAmplitude*(double)sin(t/2*M_PI));
 
 		//Zerowe warunki brzegowe
 		S[0] = 0;
@@ -51,16 +55,30 @@ vector <double> getNeuronDeviation(int N, double g, double time, double timeStep
 	
 		for( int i=0; i<N; i++)
 			deviation+=pow((S0[i] - S[i]),2.0);
+		
+		if(t > (period*100 + timeStart) && !(t%period)){
+			
+			if( variationX.good() ){
+				variationX <<t<< endl;
+				variationX.flush();
+			}
 
-		neuronDeviation.push_back((double)deviation/(double)N);
-		//cout<<"t: "<<t<<" deviation: "<<(double)deviation/(double)N<<endl;
+			if( variationY.good() ){
+				variationY <<(double)deviation/(double)N<< endl;
+				variationY.flush();
+			}
 
+			neuronDeviation.push_back((double)deviation/(double)N);
+			//cout<<"t: "<<t<<" deviation: "<<(double)deviation/(double)N<<endl;
+		}
 		for(int i=0; i<N; i++)
 			H[i] = (double)0;
 		
 		deviation = 0;
 	
 	}
+	variationX.close();
+	variationY.close();
 	return neuronDeviation;
 }
 
@@ -163,7 +181,8 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 	int rysuj = 0;
 	double entropy;
 	for(double g=gStart;g<=gStop;g+=gStep){
-		vector<double> data = getNeuronDeviation(N,g,time,timeStep);
+		//vector <double> getNeuronDeviation(int N, double g, double time, double timeStart,int period, double timeStep );
+		vector<double> data = getNeuronDeviation(N,g,time,0,24,timeStep);
 		vector< vector<int> > pixels = getPixels(data,epsilon);
 		vector<double> lines = getLines(pixels);
 		vector<double> histogram = getHistogram(lines);
@@ -177,7 +196,7 @@ void drawEntropy(int N, double time, double timeStep, double gStart, double gSto
 			yAxis.flush();
 		}
 		if(rysuj)
-			line(diagram, 100+g/gStop*800, -previosEntropy*80+800, 100+(g+gStep)/gStop*800, -entropy*80+800, makecol( 0, 0, 0 ) );
+			line(diagram, 100+g/gStop*800, -previosEntropy*80+400, 100+(g+gStep)/gStop*800, -entropy*80+400, makecol( 0, 0, 0 ) );
 		previosEntropy = entropy;
 		
 		rysuj = 1;

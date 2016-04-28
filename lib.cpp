@@ -40,7 +40,7 @@ int getStreamSize(string fileName){
 vector<double> getData(string fileName){
   vector<double> data;
   fstream file;
-  file.open( const_cast<char*>(("Dane/" + fileName).c_str()), ios::in | ios::out );
+  file.open( const_cast<char*>((fileName).c_str()), ios::in | ios::out );
   if( file.good() == true ){   
     while(file != 0){
       char line[ 255 ];
@@ -57,6 +57,14 @@ vector<double> getData(string fileName){
   return data;
 }
 
+vector<double> normalizeData(vector<double> data){
+	double max = *max_element(data.begin(),data.end());
+	double min = *min_element(data.begin(),data.end());
+	for(int ii=0;ii<data.size();ii++)
+		data[ii] = 2*(data[ii] - min)/(max-min) -1;
+	
+	return data;
+}
 vector<double> getHistogram(vector<double> lines){
   double maxLine = *max_element(lines.begin(), lines.end());
   vector<double> histogram(maxLine+1);
@@ -89,32 +97,28 @@ vector< vector<int> > getPixels(vector<double> dataFromFile, double epsilon){
 }
 
 void drawRecursiveDiagram(vector<double> dataFromFile, double epsilon){
-  allegro_init();
-  install_keyboard();
-  set_color_depth( 16 );
-  set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
-  clear_to_color( screen, makecol( 128, 128, 128 ) );
-  BITMAP * diagram = NULL;
-  diagram = create_bitmap( 1000, 1000 );
-  if( !diagram )
-  {
-      set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
-      allegro_message( "Picture cannot be loaded!" );
-      allegro_exit();
-  }
-  clear_to_color( diagram, makecol( 255, 255, 255 ) );
-  for(int ii=0;ii<dataFromFile.size();ii++){
-    for(int jj=0;jj<dataFromFile.size();jj++){
-        if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon)
-		putpixel( diagram, ii, jj, makecol( 200, 0, 0 ) );
-    }
-  }
+	fstream recX1( "recX1.txt", ios::out );
+	fstream recY1( "recY1.txt", ios::out );
 
 
-  blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
-  readkey();
-  destroy_bitmap( diagram );
-  allegro_exit();
+	for(int ii=0;ii<dataFromFile.size();ii++){
+		for(int jj=0;jj<dataFromFile.size();jj++){
+			if(abs(dataFromFile[ii] - dataFromFile[jj]) < epsilon){
+				//putpixel( diagram, ii, jj, makecol( 200, 0, 0 ) );
+				if( recX1.good() ){
+					recX1 << ii<< endl;
+					recX1.flush();
+				}
+				if( recY1.good() ){
+					recY1 << jj<< endl;
+					recY1.flush();
+				}
+			}
+		}
+	}
+
+	recX1.close();
+	recY1.close();
 }
 
 
@@ -146,10 +150,14 @@ vector<double> getLogisticMap(int mapSize, int mapStart, double x0, double r){
   return logisticMap;
 }
 
-void drawReturnsMap (double param, int T)
+void drawReturnsMap (double g)
 {
-	vector<double> logMap=getLogisticMap(1000,1000,0.1,param);
-	vector<double> logMappT=getLogisticMap(1000,(1000+T),0.1,param);
+	fstream returnsMapX( "returnsMapX.txt", ios::out );
+	fstream returnsMapY( "returnsMapY.txt", ios::out );
+
+	//vector <double> getNeuronDeviation(int N, double g, double time, double timeStart,int period, double timeStep );
+	vector<double> neuronDeviation=getNeuronDeviation(100,g,5000,0,24,1);
+	vector<double> neuronDeviationSlided=getNeuronDeviation(100,g,5000,0,24,1);
 	
 	allegro_init();
   	install_keyboard();
@@ -165,18 +173,74 @@ void drawReturnsMap (double param, int T)
 	}
 	clear_to_color( diagram, makecol( 255, 255, 255 ) );
 
-	for( int i=0;i<logMap.size();i++ ){
+	for( int i=0;i<neuronDeviation.size();i++ ){
+		if( returnsMapX.good() ){
+			returnsMapX << neuronDeviation[i]<< endl;
+			returnsMapX.flush();
+		}
+		if( returnsMapY.good() ){
+			returnsMapY << neuronDeviationSlided[i]<< endl;
+			returnsMapY.flush();
+		}
+	/*
 	for( int j=-5;j<6;j++ ){
-
-	putpixel( diagram, logMap[i]*1000+j, logMappT[i]*1000, makecol( 0, 0, 0 ) );
-	putpixel( diagram, logMap[i]*1000, logMappT[i]*1000+j, makecol( 0, 0, 0 ) );
-	cout<<logMap[i]<<endl;
+		
+		putpixel( diagram, logMap[i]*1000+j, logMappT[i]*1000, makecol( 0, 0, 0 ) );
+		putpixel( diagram, logMap[i]*1000, logMappT[i]*1000+j, makecol( 0, 0, 0 ) );
 	}
+	*/
 	}
 	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
 	readkey();
 	destroy_bitmap( diagram );
 	allegro_exit();
+	returnsMapX.close();
+	returnsMapY.close();
+
+}
+
+void drawReturnsMapFromData (vector <double> signal, int T)
+{
+	fstream returnsMapX( "returnsMapX.txt", ios::out );
+	fstream returnsMapY( "returnsMapY.txt", ios::out );
+	
+	allegro_init();
+  	install_keyboard();
+  	set_color_depth( 16 );
+  	set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
+  	clear_to_color( screen, makecol( 255, 255, 255 ) );
+  	BITMAP * diagram = NULL;
+	diagram = create_bitmap( 1000, 1000 );
+	if( !diagram ){
+	set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
+	allegro_message( "Picture cannot be loaded!" );
+	allegro_exit();
+	}
+	clear_to_color( diagram, makecol( 255, 255, 255 ) );
+
+	for( int i=0;i<signal.size()-T;i++ ){
+		if( returnsMapX.good() ){
+			returnsMapX << signal[i]<< endl;
+			returnsMapX.flush();
+		}
+		if( returnsMapY.good() ){
+			returnsMapY << signal[i+T]<< endl;
+			returnsMapY.flush();
+		}
+	/*
+	for( int j=-5;j<6;j++ ){
+		
+		putpixel( diagram, logMap[i]*1000+j, logMappT[i]*1000, makecol( 0, 0, 0 ) );
+		putpixel( diagram, logMap[i]*1000, logMappT[i]*1000+j, makecol( 0, 0, 0 ) );
+	}
+	*/
+	}
+	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
+	readkey();
+	destroy_bitmap( diagram );
+	allegro_exit();
+	returnsMapX.close();
+	returnsMapY.close();
 
 }
 
@@ -215,36 +279,55 @@ void drawXnXnp1 (double param)
 
 
 void logisticMap(double epsilon){
-  vector<double> logisticMap1;
-  double logisticEpsilon = epsilon;
-  allegro_init();
-  install_keyboard();
-  set_color_depth( 16 );
-  set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
-  clear_to_color( screen, makecol( 255, 255, 255 ) );
-  BITMAP * diagram = NULL;
-  diagram = create_bitmap( 1000, 1000 );
-  if( !diagram ){
-    set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
-    allegro_message( "Picture cannot be loaded!" );
-    allegro_exit();
-  }
-  clear_to_color( diagram, makecol( 255, 255, 255 ) );
-  double previosEntropy = 0;
-  for( double i=0;i<999;i++ ){
-    logisticMap1=getLogisticMap(1000,1000,0.1,3.5+(double)i/2000);
-    vector< vector<int> > logisticMap1Pixels = getPixels(logisticMap1,logisticEpsilon);
-    vector<double> logisticMap1Lines = getLines(logisticMap1Pixels);
-    //drawRecursiveDiagram(logisticMap1, logisticEpsilon);
-    vector<double> logisticMap1Histogram = getHistogram(logisticMap1Lines);
-    double logisticMapEntropy = getEntropy(logisticMap1Histogram);
-    //putpixel( diagram, i*10, 800-logisticMapEntropy*100, makecol( 0, 0, 0 ) );	
-    line(diagram, i, 100-previosEntropy*80, (i+1), 100-logisticMapEntropy*80, makecol( 0, 0, 0 ) );
-    previosEntropy = getEntropy(logisticMap1Histogram);
-  }
-  blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
-  readkey();
-  destroy_bitmap( diagram );
-  allegro_exit();
+
+	fstream entropyLogistic( "entropyLogistic.txt", ios::out );
+
+	vector<double> logisticMap1;
+	double logisticEpsilon = epsilon;
+	allegro_init();
+	install_keyboard();
+	set_color_depth( 16 );
+	set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1000, 1000, 0, 0 );
+	clear_to_color( screen, makecol( 255, 255, 255 ) );
+	BITMAP * diagram = NULL;
+	diagram = create_bitmap( 1000, 1000 );
+	if( !diagram ){
+	set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
+	allegro_message( "Picture cannot be loaded!" );
+	allegro_exit();
+	}
+	clear_to_color( diagram, makecol( 255, 255, 255 ) );
+	double previosEntropy = 0;
+	for( double i=0;i<999;i++ ){
+		logisticMap1=getLogisticMap(1000,1000,0.1,3.5+(double)i/2000);
+		vector< vector<int> > logisticMap1Pixels = getPixels(logisticMap1,logisticEpsilon);
+		vector<double> logisticMap1Lines = getLines(logisticMap1Pixels);
+		//drawRecursiveDiagram(logisticMap1, logisticEpsilon);
+		vector<double> logisticMap1Histogram = getHistogram(logisticMap1Lines);
+		double logisticMapEntropy = getEntropy(logisticMap1Histogram);
+		//putpixel( diagram, i*10, 800-logisticMapEntropy*100, makecol( 0, 0, 0 ) );	
+		line(diagram, i, 100-previosEntropy*80, (i+1), 100-logisticMapEntropy*80, makecol( 0, 0, 0 ) );
+		previosEntropy = getEntropy(logisticMap1Histogram);
+		if( entropyLogistic.good() ){
+			entropyLogistic << logisticMapEntropy << endl;
+			entropyLogistic.flush();
+		}
+	}
+	blit( diagram, screen, 0, 0, 0, 0, diagram->w, diagram->h );
+	readkey();
+	destroy_bitmap( diagram );
+	allegro_exit();
+	entropyLogistic.close();
+
+}
+
+void writeToFile(vector <double> signal){
+	fstream plik( "signal.txt", ios::out );
+	if( plik.good() ){
+		for( int i = 0; i < signal.size(); i++ )
+			plik << signal[i] << endl;
+		plik.flush();
+	}
+	plik.close();
 }
 

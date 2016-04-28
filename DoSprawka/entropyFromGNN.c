@@ -1,8 +1,8 @@
-void sigmaG0008(){
+void entropyFromGNN(){
 	ifstream ifile1;
 	ifstream ifile2;
-	ifile1.open("returnsMapX.txt");
-	ifile2.open("returnsMapY.txt");
+	ifile1.open("networkDataX.txt");
+	ifile2.open("networkDataY.txt");
 	double valX;
 	double valY;
 	double g=0;
@@ -17,15 +17,14 @@ void sigmaG0008(){
 	ifile1.close();
 	ifile2.close();
 
-	graph->SetTitle("Entropia od g");
+	graph->SetTitle("Entropy function of the parameter g");
 	graph->GetXaxis()->SetTitle("g");
-	graph->GetYaxis()->SetTitle("Entropia");
+	graph->GetYaxis()->SetTitle("Entropy");
 	
 	
 	TCanvas *c1 = new TCanvas("c1","Lab1",10,10,800,800);
 	c1->Divide(1,1);
 	c1->cd(1);
-	graph->Draw("AP");
-	graph->SetMarkerStyle(8);
+	graph->Draw();
 	c1->update();
 }
